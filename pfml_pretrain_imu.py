@@ -13,6 +13,8 @@ import time
 import os
 import sys
 
+from pathlib import Path
+from scipy.io import loadmat
 from importlib.machinery import SourceFileLoader
 from copy import deepcopy
 from torch import cuda, no_grad, save, load, stack
@@ -28,7 +30,7 @@ if len(sys.argv) == 2:
     conf = SourceFileLoader('', sys.argv[1]).load_module()
     conf_file_name = sys.argv[1]
 else:
-    try:
+    try: 
         import conf_pfml_pretrain_imu as conf
         conf_file_name = 'conf_pfml_pretrain_imu.py'
     except ModuleNotFoundError:
@@ -93,7 +95,8 @@ if __name__ == '__main__':
         
     
     # Use CUDA if it is available, else use CPU
-    device = 'cuda' if cuda.is_available() else 'cpu'
+    #device = 'cuda' if cuda.is_available() else 'cpu'
+    device = 'cpu'
     with open(conf.name_of_log_textfile, 'a') as f:
         f.write(f'Process on {device}\n\n')
     
@@ -101,13 +104,15 @@ if __name__ == '__main__':
     with open(conf.name_of_log_textfile, 'a') as f:
         f.write('Generating data...\n')
     
+    # Tämä korvataan oikealla datalla 
+    
     Data = []
     for iBaby in range(conf.num_randomly_generated_babydata):
         babyData = {}
         
         # We generate random signals to simulate having MAIJU recordings
         num_samples = np.random.randint(50000, high=300000)
-        num_channels = 12
+        num_channels = 9
         x = np.linspace(0, num_samples, num_samples)
         
         acc_data = [] # Randomly generated accelerometer data (12 channels)
@@ -119,6 +124,7 @@ if __name__ == '__main__':
                 else:
                     data_list.append(np.random.rand() * np.cos(x) + np.random.normal(scale=0.1, size=len(x)))
         
+        # Has the shape [num_samples, num_channels*2]
         x_r = np.concatenate((acc_data, gyro_data), axis=0).T
         
         # We frame the signals
@@ -129,11 +135,30 @@ if __name__ == '__main__':
         # 1 = frame is masked, 0 = frame is not masked
         mask = (np.random.rand(len(x_r)) < 0.1).astype(int)
         
+        # Here x_r has the shape [num_frames, num_channels, window_len], and mask has the shape [num_frames]. 
         babyData['X'] = x_r
         babyData['Mask'] = mask
 
-        Data.append(babyData)
+        Data.append(babyData) 
     
+    
+    # Load real data 
+    """
+    Data = [] 
+    mat_folder = Path("/home/paavo/Desktop/all_data_mat/")
+    mat_files = list(mat_folder.glob("*.mat"))
+    for f in mat_files: 
+        data = loadmat(f)
+        acc = data["acc_data"]
+        gyro = data["gyro_data"]  
+        X = np.concatenate((acc, gyro), axis=1)
+        X_framed = frame_sig(X, conf.window_len, conf.hop_len)
+        data['X'] = X_framed
+        data['Mask'] = np.zeros(len(X_framed))
+        Data.append(data) 
+    """
+    
+
     with open(conf.name_of_log_textfile, 'a') as f:
         f.write('Done!\n\n')
     

@@ -18,6 +18,8 @@ import os
 import time
 import sys
 
+from pathlib import Path
+from scipy.io import loadmat
 from importlib.machinery import SourceFileLoader
 from py_conf_file_into_text import convert_py_conf_file_to_text
 from sklearn.metrics import f1_score, recall_score, confusion_matrix
@@ -103,7 +105,7 @@ if __name__ == "__main__":
     with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:
         f.write('Generating data...\n')
     
-    Data = []
+    Data = [] 
     for sequence_index in range(conf.num_randomly_generated_babydata):
         babyData = {}
         
@@ -135,7 +137,22 @@ if __name__ == "__main__":
         babyData['Mask'] = mask
 
         Data.append(babyData)
+
+    # Load real data
+    Data = [] 
+    mat_folder = Path("/home/paavo/Desktop/all_annotations_mat/")
+    mat_files = list(mat_folder.glob("*.mat"))
+    for f in mat_files: 
+        data = loadmat(f)
+        acc = data["acc_data"]
+        gyro = data["gyro_data"]  
+        X = np.concatenate((acc, gyro), axis=1)
+        X_framed = frame_sig(X, conf.window_len, conf.hop_len)
+        data['X'] = X_framed
+        data['Mask'] = np.zeros(len(X_framed))
+        Data.append(data)
     
+
     with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:
         f.write('Done!\n\n')
     
@@ -633,7 +650,7 @@ if __name__ == "__main__":
                 prec[i] = np.nan; rec[i] = np.nan; f1[i] = np.nan
 
         prec_mean = np.nanmean(prec)
-        rec_mean = np.nanmean(rec)
+        rec_mean = np.nanmean(rec) 
         f1_mean = np.nanmean(f1)
         
         with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:

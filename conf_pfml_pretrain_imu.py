@@ -95,7 +95,7 @@ optimization_algorithm = 'RAdam'
 optimization_algorithm_params = {'lr': learning_rate}
 
 # A flag to determine if we want to use a learning rate scheduler
-use_lr_scheduler = True
+use_lr_scheduler = False
 
 # Define which learning rate scheduler we want to use from torch.optim.lr_scheduler
 lr_scheduler = 'ReduceLROnPlateau'
@@ -118,7 +118,7 @@ feature_extraction_model_output_savefile_basename = f'feature_extraction_output/
 
 """The hyperparameters for our encoder model"""
 
-num_input_channels = 24
+num_input_channels = 18
 encoder_num_latent_channels = 80
 encoder_num_output_channels = 160
 

@@ -337,6 +337,8 @@ class random_imu_data_dataset(Dataset):
         
         # We create artificial labels for our randomly generated dataset. There are nine different labels
         # for movement in MAIJU data.
+        # Tämä muutetaan niin, että tuodaan oikeat labelit data_listista
+        """         
         if include_artificial_labels:
             Y = np.zeros((len(self.X), train_sequence_length, 9))
             for i in range(len(Y)):
@@ -346,6 +348,45 @@ class random_imu_data_dataset(Dataset):
                     Y[i, j, max_ind] = 1.0
         
             self.Y = Y
+         """
+        if include_artificial_labels:
+            Y = []
+            
+
+            # We need to slice B1 in the same way X was sliced
+            idx = 0
+            for baby_data in data_list:
+                labels_in = baby_data['B1']  # shape (T, num_classes)
+                T = labels_in.shape[0]
+
+                num_sequences = T // train_sequence_length
+                leftover = T % train_sequence_length
+
+                # Same logic as X slicing
+                if not mix_train_val_babies or train_val_test == 'test':
+                    sequences = range(num_sequences)
+                else:
+                    num_train_seq = int(np.round(train_val_ratio * num_sequences))
+                    perm = np.random.RandomState(seed=random_seed).permutation(num_sequences)
+                    sequences = perm[:num_train_seq] if train_val_test == 'train' else perm[num_train_seq:]
+
+                # Full sequences
+                for i in sequences:
+                    start = i * train_sequence_length
+                    end = (i + 1) * train_sequence_length
+                    Y.append(labels_in[start:end, :])
+
+                # Leftover sequence (padded)
+                if leftover != 0 and (train_val_test != 'validation' or not mix_train_val_babies):
+                    start = sequences[-1] * train_sequence_length
+                    end = (sequences[-1] + 1) * train_sequence_length
+
+                    Y_left = np.copy(labels_in[start:end, :])
+                    Y_left[:leftover] = labels_in[-leftover:, :]
+                    Y.append(Y_left)
+
+            self.Y = np.array(Y)
+
         
         self.include_artificial_labels = include_artificial_labels
         
@@ -566,7 +607,7 @@ class random_speech_data_dataset(Dataset):
     """
     Dataloader for PFML pre-training and pre-trained model fine-tuning using randomly generated speech data.
     
-    """
+    """ 
 
     def __init__(self, data_list, train_val_test = 'train', train_val_ratio = 0.8, random_seed = 42, 
                  data_sampling_rate=1.0, normalize_waveform=True, window_len_seconds=0.03, hop_len_seconds=0.01,

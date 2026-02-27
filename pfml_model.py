@@ -16,8 +16,8 @@ import math
 import time
 import sys
 import torch
-from torch.nn import Module, Linear, Conv1d, BatchNorm1d, Dropout, GELU, LayerNorm, Parameter, Identity
-from torch.nn import AvgPool1d, Conv2d, AvgPool2d, LeakyReLU, Tanh, ELU, Conv3d, AvgPool3d, BatchNorm2d
+from torch.nn import Module, ModuleList, Linear, Conv1d, BatchNorm1d, Dropout, GELU, LayerNorm, Parameter, Identity
+from torch.nn import AvgPool1d, Conv2d, AvgPool2d, LeakyReLU, Tanh, Sigmoid, ELU, Conv3d, AvgPool3d, BatchNorm2d
 from torch.nn import ReLU, MaxPool1d
 from transformer_encoder_pytorch import Transformer_encoder_base
 
@@ -166,15 +166,15 @@ class SENSOR_MODULE_v3(Module):
     
     """
     def __init__(self,
-                 s_channels = 24,
+                 s_channels = 18,
                  input_channels = 120,
                  latent_channels = 70,
                  output_channels = 140,
                  dropout = 0.3,
                  conv_1_kernel_size = (1,3,11),
                  conv_2_kernel_size = (1,3,5),
-                 conv_3_kernel_size = (1,4),
-                 conv_4_kernel_size = (1,4),
+                 conv_3_kernel_size = (1,3),
+                 conv_4_kernel_size = (1,4), # Toimii jos (1,4)
                  conv_1_stride = (1,3,6),
                  conv_2_stride = (1,1,2),
                  conv_3_stride = 1,
@@ -186,7 +186,7 @@ class SENSOR_MODULE_v3(Module):
                  pooling_1_zero_padding = (0,0,0),
                  pooling_1_kernel_size = (1,1,10),
                  pooling_2_zero_padding = (0,0),
-                 pooling_2_kernel_size = (1,4),
+                 pooling_2_kernel_size = (1,3),
                  normalization_type = 'layernorm'):
 
         super().__init__()
@@ -281,8 +281,8 @@ class SENSOR_MODULE_v3(Module):
         gyro_data = X[:, :, :, (self.r):, :] # gyro_data is of size [batch_size, 1, Nframes, r, input_channels]
         
         # Get convolution embeddings for acceleration and gyro, both separately and together
-        acc_emb = self._conv_module_1(acc_data) # acc_emb is of size [batch_size, latent_channels, Nframes, 4]
-        gyro_emb = self._conv_module_2(gyro_data) # gyro_emb is of size [batch_size, latent_channels, Nframes, 4]
+        acc_emb = self._conv_module_1(acc_data) # acc_emb is of size [batch_size, latent_channels, Nframes, x]
+        gyro_emb = self._conv_module_2(gyro_data) # gyro_emb is of size [batch_size, latent_channels, Nframes, x]
         both_emb = self._conv_module_3(X) # X is of size [batch_size, latent_channels, Nframes, 8]
         
         # We fuse acceleration and gyro
@@ -292,12 +292,15 @@ class SENSOR_MODULE_v3(Module):
         else:
             X_fused = self.pooling_2(self.lrelu(self.normalization(self.conv_3(X_fused))))
         # Now X_fused is of size [batch_size, Nframes, output_channels, 4]
-        
+        # --> torch.Size([64, 160, 260, 4])
+
         # We fuse sensors
         if self.normalization_type == 'layernorm':
             X_output = torch.squeeze(self.lrelu(self.normalization(self.conv_4(X_fused).permute(0, 2, 3, 1)).permute(0, 3, 1, 2)), dim=3)
         else:
             X_output = torch.squeeze(self.lrelu(self.normalization(self.conv_4(X_fused))), dim=3)
+        print("X_output shape before permute:", X_output.shape)
+        # 3 sensorilla saadaan: torch.Size([64, 160, 260, 2])
         X_output = X_output.permute(0, 2, 1) # X_output is of size [batch_size, Nframes, output_channels]   
         
         return X_output
@@ -923,4 +926,89 @@ class pfml_transformer_encoder(Module):
             output_averaged = sum(output_unaveraged) / len(output_unaveraged)
             
             return output_averaged
-    
+
+
+class WaveNet(Module):
+    """
+    (Some description here).
+
+    """
+
+    def __init__(self,
+                 input_channels=140,
+                 residual_channels=64,
+                 postproc_channels=64,
+                 output_channels=7,
+                 dilations=[1, 2, 4],
+                 filter_width=5,
+                 conv_input_kernel_size=1,
+                 conv_postproc_2_kernel_size=1,
+                 conv_input_stride=1,
+                 conv_postproc_1_stride=1,
+                 conv_postproc_2_stride=1,
+                 res_conv_stride=1,
+                 conv_input_zero_padding='same',
+                 conv_postproc_1_zero_padding='same',
+                 conv_postproc_2_zero_padding='same',
+                 res_conv_zero_padding='same',
+                 dropout=0.3):
+
+        super().__init__()
+
+        self.residual_channels = residual_channels
+
+        self.conv_input = Conv1d(in_channels=input_channels, out_channels=residual_channels, 
+                                 kernel_size=conv_input_kernel_size, stride=conv_input_stride,
+                                 padding=conv_input_zero_padding, bias=True)
+
+        self.residual_convolutions = ModuleList([Conv1d(in_channels=residual_channels,
+                                                        out_channels=2*residual_channels,
+                                                        kernel_size=filter_width, stride=res_conv_stride,
+                                                        padding=res_conv_zero_padding, dilation=dilations[i],
+                                                        bias=True) for i in range(len(dilations))])
+
+        self.conv_postproc_1 = Conv1d(in_channels=residual_channels, out_channels=postproc_channels, 
+                                      kernel_size=filter_width, stride=conv_postproc_1_stride,
+                                      padding=conv_postproc_1_zero_padding, bias=True)
+
+        self.conv_postproc_2 = Conv1d(in_channels=postproc_channels, out_channels=output_channels, 
+                                      kernel_size=conv_postproc_2_kernel_size, stride=conv_postproc_2_stride,
+                                      padding=conv_postproc_2_zero_padding, bias=True)
+
+        self.tanh = Tanh()
+        self.sigmoid = Sigmoid()
+        self.relu = ReLU()
+
+        self.dropout = Dropout(dropout)
+
+    def forward(self, X):
+
+        skip_outputs = []
+        X = self.dropout(X)  # X is of size [Nframes, input_channels]
+        X = torch.unsqueeze(X, dim=2).permute(2, 1, 0)  # X is of size [1, input_channels, Nframes]
+
+        # Input convolution
+        X = self.tanh(self.conv_input(X))  # X is of size [1, residual_channels, Nframes]
+
+        # Perform the dilated convolutions with filtering, gating, and residual connections
+        for i in range(len(self.residual_convolutions)):
+            res_input = X
+
+            # Dilated convolutions over time
+            X = self.residual_convolutions[i](res_input)
+
+            # Filter and gate
+            X = self.tanh(X[:, :(self.residual_channels), :]) * self.sigmoid(X[:, (self.residual_channels):, :])
+
+            skip_outputs.append(X)
+            X += res_input
+
+        Y = sum(skip_outputs)  # Y is of size [1, residual_channels, Nframes]
+
+        # Post-processing
+        Encoding = self.relu(self.conv_postproc_1(Y))
+        X_output = self.conv_postproc_2(Encoding)
+        Encoding = torch.squeeze(Encoding).permute(1, 0)  # Encoding is of size [Nframes, postproc_channels]
+        X_output = torch.squeeze(X_output).permute(1, 0)  # X_output is of size [Nframes, output_channels]
+
+        return X_output, Encoding

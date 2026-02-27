@@ -8,7 +8,7 @@ The configuration file for finetune_pfml_pretrained_imu_models.py.
 
 """
 
-finetuning_experiment_number = 1
+finetuning_experiment_number = 1 
 
 # The .py configuration file that was used for PFML pre-training (contains all necessary model
 # hyperparameters). Note: Do NOT add the '.py' ending to the file name!
@@ -100,7 +100,7 @@ optimization_algorithm = 'Adam'
 optimization_algorithm_params = {'lr': learning_rate}
 
 # A flag to determine if we want to use a learning rate scheduler
-use_lr_scheduler = True
+use_lr_scheduler = False
 
 # Define our learning rate schedulers for the fine-tuning stages 1 and 2 (from torch.optim.lr_scheduler)
 lr_scheduler_stage_1 = 'ReduceLROnPlateau'

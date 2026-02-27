@@ -1,0 +1,174 @@
+The configuration settings in the file conf_pfml_pretrain_imu.py:
+
+experiment_num = 1
+max_epochs = 10000
+patience = 100
+dropout_encoder_model = 0.1
+learning_rate = 1e-4
+train_sequence_length = 260
+batch_size = 64
+window_len = 120
+hop_len = 60
+train_model = True
+extract_features = False
+load_model = False
+save_best_model = True
+name_of_log_textfile = f'trainlogs_pfml_pretraining/pfml_trainlog_simulated_imu_data_{experiment_num}.txt'
+print_conf_contents = True
+encoder_name = 'SENSOR_MODULE_v3'
+transformer_name = 'pfml_transformer_encoder'
+decoder_name = 'pfml_decoder_linear'
+min_train_epochs = 20
+min_embedding_variance = -9999.0
+compute_loss_only_for_masked_embeddings = True
+pfml_loss_name = 'MSELoss'
+pfml_loss_scaler = 1.0
+pfml_loss_params = {}
+compute_variance_for_unmasked_parts = True
+optimization_algorithm = 'RAdam'
+optimization_algorithm_params = {'lr': learning_rate}
+use_lr_scheduler = False
+lr_scheduler = 'ReduceLROnPlateau'
+lr_scheduler_params = {'mode': 'min',
+                       'factor': 0.5,
+                       'patience': 40}
+encoder_best_model_name = f'pfml_pretrained_models/pfml_Encoder_imu_best_model_{experiment_num}.pt'
+transformer_best_model_name = f'pfml_pretrained_models/pfml_Transformer_imu_best_model_{experiment_num}.pt'
+decoder_best_model_name = f'pfml_pretrained_models/pfml_Decoder_imu_best_model_{experiment_num}.pt'
+feature_extraction_model_output_savefile_basename = f'feature_extraction_output/simulated_imu_data_pfml_feats_{experiment_num}'
+num_input_channels = 18
+encoder_num_latent_channels = 80
+encoder_num_output_channels = 160
+encoder_model_params = {'s_channels': num_input_channels,
+                        'input_channels': window_len,
+                        'latent_channels': encoder_num_latent_channels,
+                        'output_channels': encoder_num_output_channels,
+                        'dropout': dropout_encoder_model}
+embedding_dim = encoder_num_output_channels
+transformer_hidden_dim = 640
+num_attention_heads = 10
+num_transformer_encoder_layers = 6
+dropout_transformer = 0.2
+transformer_activation_function = 'gelu'
+require_same_num_embedding_masks = False
+prob_frame_is_start_of_embedding_mask = 0.15
+embedding_mask_length_frames = 3
+min_num_mask_start_frames = 1
+learnable_mask_embedding = False
+mask_type = 'ones'
+target_output_type = None
+only_attend_to_previous_context = False
+use_sqrt = False
+use_embedding_projection = False
+use_final_projection = True
+positional_encoding_type = 'relative'
+dropout_pos_encoding = 0.0
+abs_pos_encoding_max_sequence_length = train_sequence_length
+rel_pos_encoding_conv_in_dim = encoder_num_output_channels # The input dimensionality of the positional encodings
+rel_pos_encoding_conv_out_dim = encoder_num_output_channels # The output dimensionality of the positional encodings
+rel_pos_encoding_conv_kernel_size = 13 # The CNN kernel size of the positional encodings
+rel_pos_encoding_conv_stride = 1 # The CNN stride of the positional encodings
+rel_pos_encoding_conv_padding = 6 # The CNN padding of the positional encodings
+rel_pos_encoding_conv_bias = False # The CNN bias of the pos. encodings (not used in wav2vec 2.0 and data2vec papers)
+rel_pos_encoding_use_layernorm = True # Defines whether we want to apply LayerNorm after the positional encoding
+transformer_params = {'dim_model': embedding_dim,
+                      'dim_feedforward': transformer_hidden_dim,
+                      'num_heads': num_attention_heads,
+                      'num_encoder_layers': num_transformer_encoder_layers,
+                      'dropout': dropout_transformer,
+                      'transformer_activation_function': transformer_activation_function,
+                      'require_same_num_embedding_masks': require_same_num_embedding_masks,
+                      'prob_frame_is_start_of_embedding_mask': prob_frame_is_start_of_embedding_mask,
+                      'embedding_mask_length_frames': embedding_mask_length_frames,
+                      'min_num_mask_start_frames': min_num_mask_start_frames,
+                      'learnable_mask_embedding': learnable_mask_embedding,
+                      'mask_type': mask_type,
+                      'only_attend_to_previous_context': only_attend_to_previous_context,
+                      'use_sqrt': use_sqrt,
+                      'use_embedding_projection': use_embedding_projection,
+                      'use_final_projection': use_final_projection,
+                      'positional_encoding_type': positional_encoding_type,
+                      'dropout_pos_encoding': dropout_pos_encoding,
+                      'abs_pos_encoding_max_sequence_length': abs_pos_encoding_max_sequence_length,
+                      'rel_pos_encoding_conv_in_dim': rel_pos_encoding_conv_in_dim,
+                      'rel_pos_encoding_conv_out_dim': rel_pos_encoding_conv_out_dim,
+                      'rel_pos_encoding_conv_kernel_size': rel_pos_encoding_conv_kernel_size,
+                      'rel_pos_encoding_conv_stride': rel_pos_encoding_conv_stride,
+                      'rel_pos_encoding_conv_padding': rel_pos_encoding_conv_padding,
+                      'rel_pos_encoding_conv_bias': rel_pos_encoding_conv_bias,
+                      'rel_pos_encoding_use_layernorm': rel_pos_encoding_use_layernorm}
+decoder_params = {'input_dim': embedding_dim,
+                  'output_dim': num_input_channels * 11}
+use_augmentation = False
+aug_p_noise = 0.0
+aug_p_dropout = 0.0
+aug_p_rotation = 0.3
+aug_p_chandropout = 0.1
+aug_p_time_warping = 0.0
+num_randomly_generated_babydata = 20
+dataset_name = 'random_imu_data_dataset'
+train_val_ratio = 0.8
+shuffle_training_data = True
+mix_train_val_babies = True
+params_train_dataset = {'train_sequence_length': train_sequence_length,
+                        'train_val_ratio': train_val_ratio,
+                        'window_len': window_len,
+                        'hop_len': hop_len,
+                        'mix_train_val_babies': mix_train_val_babies,
+                        'augment_train_data': use_augmentation,
+                        'aug_p_noise': aug_p_noise,
+                        'aug_p_dropout': aug_p_dropout,
+                        'aug_p_rotation': aug_p_rotation,
+                        'aug_p_chandropout': aug_p_chandropout,
+                        'aug_p_time_warping': aug_p_time_warping}
+params_validation_dataset = {'train_sequence_length': train_sequence_length,
+                             'train_val_ratio': train_val_ratio,
+                             'window_len': window_len,
+                             'hop_len': hop_len,
+                             'mix_train_val_babies': mix_train_val_babies}
+params_feature_extraction_dataset = {'train_sequence_length': train_sequence_length,
+                                     'window_len': window_len,
+                                     'hop_len': hop_len}
+params_train = {'batch_size': batch_size,
+                'shuffle': shuffle_training_data,
+                'drop_last': False}
+params_feature_extraction = {'batch_size': batch_size,
+                             'shuffle': False,
+                             'drop_last': False}
+
+########################################################################################
+
+
+
+Process on cpu
+
+Generating data...
+Done!
+
+Initializing training set...
+Done!
+Initializing validation set...
+Done!
+Starting training...
+Epoch: 0001 | Mean training loss: 1.1245 | Mean validation loss: 1.1222 (lowest: 1.1222) | Mean input variance: 0.1770 | Mean embedding variance: 0.0054 | Mean output variance: 0.1055 | Duration: 51.57 seconds
+Epoch: 0002 | Mean training loss: 1.1305 | Mean validation loss: 1.1037 (lowest: 1.1037) | Mean input variance: 0.1769 | Mean embedding variance: 0.0054 | Mean output variance: 0.1057 | Duration: 48.59 seconds
+Epoch: 0003 | Mean training loss: 1.1127 | Mean validation loss: 1.0866 (lowest: 1.0866) | Mean input variance: 0.1770 | Mean embedding variance: 0.0054 | Mean output variance: 0.1065 | Duration: 46.56 seconds
+Epoch: 0004 | Mean training loss: 1.0979 | Mean validation loss: 1.0815 (lowest: 1.0815) | Mean input variance: 0.1769 | Mean embedding variance: 0.0054 | Mean output variance: 0.1073 | Duration: 46.56 seconds
+Epoch: 0005 | Mean training loss: 1.0927 | Mean validation loss: 1.0615 (lowest: 1.0615) | Mean input variance: 0.1770 | Mean embedding variance: 0.0054 | Mean output variance: 0.1070 | Duration: 45.72 seconds
+Epoch: 0006 | Mean training loss: 1.0861 | Mean validation loss: 1.0586 (lowest: 1.0586) | Mean input variance: 0.1769 | Mean embedding variance: 0.0054 | Mean output variance: 0.1050 | Duration: 46.37 seconds
+Epoch: 0007 | Mean training loss: 1.0832 | Mean validation loss: 1.0474 (lowest: 1.0474) | Mean input variance: 0.1771 | Mean embedding variance: 0.0055 | Mean output variance: 0.1027 | Duration: 45.22 seconds
+Epoch: 0008 | Mean training loss: 1.0747 | Mean validation loss: 1.0380 (lowest: 1.0380) | Mean input variance: 0.1771 | Mean embedding variance: 0.0055 | Mean output variance: 0.0999 | Duration: 45.62 seconds
+Epoch: 0009 | Mean training loss: 1.0697 | Mean validation loss: 1.0272 (lowest: 1.0272) | Mean input variance: 0.1769 | Mean embedding variance: 0.0055 | Mean output variance: 0.0972 | Duration: 45.46 seconds
+Epoch: 0010 | Mean training loss: 1.0737 | Mean validation loss: 1.0313 (lowest: 1.0272) | Mean input variance: 0.1770 | Mean embedding variance: 0.0056 | Mean output variance: 0.0944 | Duration: 46.06 seconds
+Epoch: 0011 | Mean training loss: 1.0625 | Mean validation loss: 1.0327 (lowest: 1.0272) | Mean input variance: 0.1769 | Mean embedding variance: 0.0056 | Mean output variance: 0.0919 | Duration: 46.01 seconds
+Epoch: 0012 | Mean training loss: 1.0493 | Mean validation loss: 1.0133 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0056 | Mean output variance: 0.0893 | Duration: 46.20 seconds
+Epoch: 0013 | Mean training loss: 1.0575 | Mean validation loss: 1.0341 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0057 | Mean output variance: 0.0869 | Duration: 45.91 seconds
+Epoch: 0014 | Mean training loss: 1.0507 | Mean validation loss: 1.0268 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0058 | Mean output variance: 0.0845 | Duration: 46.27 seconds
+Epoch: 0015 | Mean training loss: 1.0535 | Mean validation loss: 1.0144 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0059 | Mean output variance: 0.0827 | Duration: 46.39 seconds
+Epoch: 0016 | Mean training loss: 1.0514 | Mean validation loss: 1.0098 (lowest: 1.0098) | Mean input variance: 0.1771 | Mean embedding variance: 0.0061 | Mean output variance: 0.0806 | Duration: 47.22 seconds
+Epoch: 0017 | Mean training loss: 1.0408 | Mean validation loss: 1.0079 (lowest: 1.0079) | Mean input variance: 0.1769 | Mean embedding variance: 0.0063 | Mean output variance: 0.0788 | Duration: 47.31 seconds
+Epoch: 0018 | Mean training loss: 1.0406 | Mean validation loss: 1.0040 (lowest: 1.0040) | Mean input variance: 0.1770 | Mean embedding variance: 0.0065 | Mean output variance: 0.0772 | Duration: 47.11 seconds
+Epoch: 0019 | Mean training loss: 1.0329 | Mean validation loss: 1.0013 (lowest: 1.0013) | Mean input variance: 0.1770 | Mean embedding variance: 0.0067 | Mean output variance: 0.0754 | Duration: 45.19 seconds
+Epoch: 0020 | Mean training loss: 1.0287 | Mean validation loss: 1.0144 (lowest: 1.0013) | Mean input variance: 0.1769 | Mean embedding variance: 0.0070 | Mean output variance: 0.0739 | Duration: 46.27 seconds
+Epoch: 0021 | Mean training loss: 1.0364 | Mean validation loss: 1.0017 (lowest: 1.0013) | Mean input variance: 0.1770 | Mean embedding variance: 0.0074 | Mean output variance: 0.0727 | Duration: 46.59 seconds
+Epoch: 0022 | Mean training loss: 1.0273 | Mean validation loss: 0.9977 (lowest: 0.9977) | Mean input variance: 0.1769 | Mean embedding variance: 0.0078 | Mean output variance: 0.0720 | Duration: 46.26 seconds
