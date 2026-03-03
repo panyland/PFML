@@ -22,140 +22,6 @@ from torch.nn import ReLU, MaxPool1d
 from transformer_encoder_pytorch import Transformer_encoder_base
 
 
-
-
-class raw_audio_encoder_CNN(Module):
-    """
-    A four-layer CNN encoder (containing strided convolutions) for framed raw audio data.
-    
-    """
-    
-    def __init__(self,
-                 conv_1_in_dim = 1,
-                 conv_1_out_dim = 512,
-                 conv_1_kernel_size = 10,
-                 conv_1_stride = 5,
-                 conv_1_padding = 3,
-                 num_norm_features_1 = 512,
-                 conv_2_in_dim = 512,
-                 conv_2_out_dim = 512,
-                 conv_2_kernel_size = 8,
-                 conv_2_stride = 4,
-                 conv_2_padding = 2,
-                 num_norm_features_2 = 512,
-                 conv_3_in_dim = 512,
-                 conv_3_out_dim = 512,
-                 conv_3_kernel_size = 4,
-                 conv_3_stride = 2,
-                 conv_3_padding = 1,
-                 num_norm_features_3 = 512,
-                 conv_4_in_dim = 512,
-                 conv_4_out_dim = 512,
-                 conv_4_kernel_size = 4,
-                 conv_4_stride = 2,
-                 conv_4_padding = 1,
-                 num_norm_features_4 = 512,
-                 pooling_kernel_size = 6,
-                 pooling_zero_padding = 0,
-                 normalization_type = 'layernorm',
-                 pooling_type = 'average',
-                 non_linearity_function = 'gelu',
-                 dropout = 0.0):
-
-        super().__init__()
-        
-        # Batch normalization normalizes each feature separately across all batch samples
-        if normalization_type == 'batchnorm':
-            normalization_layer = BatchNorm1d
-        
-        # Layer normalization normalizes each each batch sample separately across all features
-        elif normalization_type == 'layernorm':
-            normalization_layer = LayerNorm
-            
-        elif normalization_type == None:
-            normalization_layer = Identity
-        else:
-            sys.exit(f'Wrong value for argument "normalization_type": {normalization_type}')
-        
-        self.conv_layer_1 = Conv1d(in_channels=conv_1_in_dim, out_channels=conv_1_out_dim, kernel_size=conv_1_kernel_size,
-                                   stride=conv_1_stride, padding=conv_1_padding)
-        self.normalization_1 = normalization_layer(num_norm_features_1)
-        
-        self.conv_layer_2 = Conv1d(in_channels=conv_2_in_dim, out_channels=conv_2_out_dim, kernel_size=conv_2_kernel_size,
-                                   stride=conv_2_stride, padding=conv_2_padding)
-        self.normalization_2 = normalization_layer(num_norm_features_2)
-        
-        self.conv_layer_3 = Conv1d(in_channels=conv_3_in_dim, out_channels=conv_3_out_dim, kernel_size=conv_3_kernel_size,
-                                   stride=conv_3_stride, padding=conv_3_padding)
-        self.normalization_3 = normalization_layer(num_norm_features_3)
-        
-        self.conv_layer_4 = Conv1d(in_channels=conv_4_in_dim, out_channels=conv_4_out_dim, kernel_size=conv_4_kernel_size,
-                                   stride=conv_4_stride, padding=conv_4_padding)
-        self.normalization_4 = normalization_layer(num_norm_features_4)
-        
-        if pooling_type == 'average':
-            self.pooling = AvgPool1d(kernel_size=pooling_kernel_size, padding=pooling_zero_padding)
-        elif pooling_type == 'max':
-            self.pooling = MaxPool1d(kernel_size=pooling_kernel_size, padding=pooling_zero_padding)
-        elif pooling_type == None:
-            self.pooling = Identity()
-        else:
-            sys.exit(f'Wrong value for argument "pooling_type": {pooling_type}')
-        
-        if non_linearity_function == 'relu':
-            self.non_linearity = ReLU()
-        elif non_linearity_function == 'elu':
-            self.non_linearity = ELU()
-        elif non_linearity_function == 'gelu':
-            self.non_linearity = GELU()
-        else:
-            sys.exit(f'Wrong value for argument "non_linearity_function": {non_linearity_function}')
-        
-        self.dropout = Dropout(dropout)
-        self.normalization_type = normalization_type
-    
-    
-    def forward(self, X_batch):
-        
-        # X_batch is now of size [batch_size, num_frames, frame_len]
-        X_output = []
-        
-        # We go through each frame of a sequence and produce an encoding
-        for i in range(X_batch.size()[0]):
-            X = X_batch[i, :, :]
-            
-            # Make the input X of size [num_frames, frame_len] into size [num_frames, 1, frame_len]
-            # by adding a dummy dimension (number of channels)
-            # --> with default values e.g. from torch.Size([298, 480]) into torch.Size([298, 1, 480])
-            X = X.unsqueeze(1)
-            
-            if self.normalization_type == 'layernorm':
-                X = self.dropout(self.non_linearity(self.normalization_1(self.conv_layer_1(X).permute(0, 2, 1)).permute(0, 2, 1)))
-                X = self.dropout(self.non_linearity(self.normalization_2(self.conv_layer_2(X).permute(0, 2, 1)).permute(0, 2, 1)))
-                X = self.dropout(self.non_linearity(self.normalization_3(self.conv_layer_3(X).permute(0, 2, 1)).permute(0, 2, 1)))
-                X = self.dropout(self.pooling(self.non_linearity(self.normalization_4(self.conv_layer_4(X).permute(0, 2, 1)).permute(0, 2, 1))))
-            else:
-                X = self.dropout(self.non_linearity(self.normalization_1(self.conv_layer_1(X))))
-                X = self.dropout(self.non_linearity(self.normalization_2(self.conv_layer_2(X))))
-                X = self.dropout(self.non_linearity(self.normalization_3(self.conv_layer_3(X))))
-                X = self.dropout(self.pooling(self.non_linearity(self.normalization_4(self.conv_layer_4(X)))))
-            
-            X = X.squeeze()
-            
-            # X is now of size [num_frames, conv_4_out_dim]
-            # --> with default values torch.Size([298, 512])
-            X_output.append(X)
-        
-        # X_output is now of size [batch_size, num_frames, conv_4_out_dim]
-        X_output = torch.stack(X_output, dim=0)
-        
-        return X_output
-
-
-
-
-
-
 class SENSOR_MODULE_v3(Module):
     """
     A four-layer CNN sensor encoder for multi-sensor IMU data that combines the raw accelerometer
@@ -306,113 +172,6 @@ class SENSOR_MODULE_v3(Module):
         return X_output
 
 
-
-
-
-
-
-class eeg_encoder_CNN(Module):
-    """
-    A three-layer CNN encoder (containing strided convolutions) for framed EEG data.
-    
-    """
-    
-    def __init__(self,
-                 conv_1_in_dim = 1,
-                 conv_1_out_dim = 128,
-                 conv_1_kernel_size = (1,10),
-                 conv_1_stride = (1,5),
-                 conv_1_padding = (0,3),
-                 num_norm_features_1 = 128,
-                 conv_2_in_dim = 128,
-                 conv_2_out_dim = 128,
-                 conv_2_kernel_size = (1,8),
-                 conv_2_stride = (1,5),
-                 conv_2_padding = (0,2),
-                 num_norm_features_2 = 128,
-                 conv_3_in_dim = 128,
-                 conv_3_out_dim = 128,
-                 conv_3_kernel_size = (1,4),
-                 conv_3_stride = (1,3),
-                 conv_3_padding = (0,1),
-                 num_norm_features_3 = 128,
-                 pooling_kernel_size = (1,5),
-                 pooling_zero_padding = (0,0),
-                 normalization_type = 'layernorm',
-                 non_linearity_function = 'gelu',
-                 dropout = 0.0):
-
-        super().__init__()
-        
-        # Batch normalization normalizes each feature separately across all batch samples
-        if normalization_type == 'batchnorm':
-            normalization_layer = BatchNorm2d
-        
-        # Layer normalization normalizes each each batch sample separately across all features
-        elif normalization_type == 'layernorm':
-            normalization_layer = LayerNorm
-            
-        elif normalization_type == None:
-            normalization_layer = Identity
-        else:
-            sys.exit(f'Wrong value for argument "normalization_type": {normalization_type}')
-        
-        self.conv_layer_1 = Conv2d(in_channels=conv_1_in_dim, out_channels=conv_1_out_dim, kernel_size=conv_1_kernel_size,
-                                   stride=conv_1_stride, padding=conv_1_padding)
-        self.normalization_1 = normalization_layer(num_norm_features_1)
-        
-        self.conv_layer_2 = Conv2d(in_channels=conv_2_in_dim, out_channels=conv_2_out_dim, kernel_size=conv_2_kernel_size,
-                                   stride=conv_2_stride, padding=conv_2_padding)
-        self.normalization_2 = normalization_layer(num_norm_features_2)
-        
-        self.conv_layer_3 = Conv2d(in_channels=conv_3_in_dim, out_channels=conv_3_out_dim, kernel_size=conv_3_kernel_size,
-                                   stride=conv_3_stride, padding=conv_3_padding)
-        self.normalization_3 = normalization_layer(num_norm_features_3)
-        
-        self.pooling = AvgPool2d(kernel_size=pooling_kernel_size, padding=pooling_zero_padding)
-        
-        if non_linearity_function == 'relu':
-            self.non_linearity = ReLU()
-        elif non_linearity_function == 'elu':
-            self.non_linearity = ELU()
-        elif non_linearity_function == 'gelu':
-            self.non_linearity = GELU()
-        else:
-            sys.exit(f'Wrong value for argument "non_linearity_function": {non_linearity_function}')
-        
-        self.dropout = Dropout(dropout)
-        self.normalization_type = normalization_type
-
-
-    def forward(self, X):
-        
-        # X is now of size [batch_size, num_frames, num_channels, frame_len]
-        # --> with default values torch.Size([batch_size, 14, 1, 400])
-        
-        # We convert X into size [batch_size, num_channels, num_frames, frame_len]
-        X = X.permute(0, 2, 1, 3)
-        
-        if self.normalization_type == 'layernorm':
-            X = self.dropout(self.non_linearity(self.normalization_1(self.conv_layer_1(X).permute(0, 3, 2, 1)).permute(0, 3, 2, 1)))
-            X = self.dropout(self.non_linearity(self.normalization_2(self.conv_layer_2(X).permute(0, 3, 2, 1)).permute(0, 3, 2, 1)))
-            X = self.dropout(self.pooling(self.non_linearity(self.normalization_3(self.conv_layer_3(X).permute(0, 3, 2, 1)).permute(0, 3, 2, 1))))
-        else:
-            X = self.dropout(self.non_linearity(self.normalization_1(self.conv_layer_1(X))))
-            X = self.dropout(self.non_linearity(self.normalization_2(self.conv_layer_2(X))))
-            X = self.dropout(self.pooling(self.non_linearity(self.normalization_3(self.conv_layer_3(X)))))
-        
-        X = X.squeeze()
-        X = X.permute(0, 2, 1)
-        
-        # X_output is now of size [batch_size, num_frames, conv_3_out_dim]
-        
-        return X
-
-
-
-
-
-
 class pfml_decoder_linear(Module):
     """
     A linear decoder for the PFML method (one-layer MLP). This decoder is used to convert
@@ -436,9 +195,6 @@ class pfml_decoder_linear(Module):
         # X_output is of size [batch_size, num_frames_embedding, output_dim]
         
         return X_output
-
-
-
 
 
 class absolute_positional_encoding(Module):
@@ -518,12 +274,6 @@ class relative_positional_encoding(Module):
             X = self.layernorm(X)
         
         return X
-
-
-
-
-
-
 
 
 class pfml_transformer_finetuning(Module):
@@ -679,13 +429,6 @@ class pfml_transformer_finetuning(Module):
                 classification_output = self.classification_layer(output)
         
         return classification_output, outputs, ff_outputs, ff_residual_outputs
-
-
-
-
-
-
-
 
 
 class pfml_transformer_encoder(Module):

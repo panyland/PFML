@@ -150,25 +150,3 @@ Done!
 Initializing validation set...
 Done!
 Starting training...
-Epoch: 0001 | Mean training loss: 1.1245 | Mean validation loss: 1.1222 (lowest: 1.1222) | Mean input variance: 0.1770 | Mean embedding variance: 0.0054 | Mean output variance: 0.1055 | Duration: 51.57 seconds
-Epoch: 0002 | Mean training loss: 1.1305 | Mean validation loss: 1.1037 (lowest: 1.1037) | Mean input variance: 0.1769 | Mean embedding variance: 0.0054 | Mean output variance: 0.1057 | Duration: 48.59 seconds
-Epoch: 0003 | Mean training loss: 1.1127 | Mean validation loss: 1.0866 (lowest: 1.0866) | Mean input variance: 0.1770 | Mean embedding variance: 0.0054 | Mean output variance: 0.1065 | Duration: 46.56 seconds
-Epoch: 0004 | Mean training loss: 1.0979 | Mean validation loss: 1.0815 (lowest: 1.0815) | Mean input variance: 0.1769 | Mean embedding variance: 0.0054 | Mean output variance: 0.1073 | Duration: 46.56 seconds
-Epoch: 0005 | Mean training loss: 1.0927 | Mean validation loss: 1.0615 (lowest: 1.0615) | Mean input variance: 0.1770 | Mean embedding variance: 0.0054 | Mean output variance: 0.1070 | Duration: 45.72 seconds
-Epoch: 0006 | Mean training loss: 1.0861 | Mean validation loss: 1.0586 (lowest: 1.0586) | Mean input variance: 0.1769 | Mean embedding variance: 0.0054 | Mean output variance: 0.1050 | Duration: 46.37 seconds
-Epoch: 0007 | Mean training loss: 1.0832 | Mean validation loss: 1.0474 (lowest: 1.0474) | Mean input variance: 0.1771 | Mean embedding variance: 0.0055 | Mean output variance: 0.1027 | Duration: 45.22 seconds
-Epoch: 0008 | Mean training loss: 1.0747 | Mean validation loss: 1.0380 (lowest: 1.0380) | Mean input variance: 0.1771 | Mean embedding variance: 0.0055 | Mean output variance: 0.0999 | Duration: 45.62 seconds
-Epoch: 0009 | Mean training loss: 1.0697 | Mean validation loss: 1.0272 (lowest: 1.0272) | Mean input variance: 0.1769 | Mean embedding variance: 0.0055 | Mean output variance: 0.0972 | Duration: 45.46 seconds
-Epoch: 0010 | Mean training loss: 1.0737 | Mean validation loss: 1.0313 (lowest: 1.0272) | Mean input variance: 0.1770 | Mean embedding variance: 0.0056 | Mean output variance: 0.0944 | Duration: 46.06 seconds
-Epoch: 0011 | Mean training loss: 1.0625 | Mean validation loss: 1.0327 (lowest: 1.0272) | Mean input variance: 0.1769 | Mean embedding variance: 0.0056 | Mean output variance: 0.0919 | Duration: 46.01 seconds
-Epoch: 0012 | Mean training loss: 1.0493 | Mean validation loss: 1.0133 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0056 | Mean output variance: 0.0893 | Duration: 46.20 seconds
-Epoch: 0013 | Mean training loss: 1.0575 | Mean validation loss: 1.0341 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0057 | Mean output variance: 0.0869 | Duration: 45.91 seconds
-Epoch: 0014 | Mean training loss: 1.0507 | Mean validation loss: 1.0268 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0058 | Mean output variance: 0.0845 | Duration: 46.27 seconds
-Epoch: 0015 | Mean training loss: 1.0535 | Mean validation loss: 1.0144 (lowest: 1.0133) | Mean input variance: 0.1770 | Mean embedding variance: 0.0059 | Mean output variance: 0.0827 | Duration: 46.39 seconds
-Epoch: 0016 | Mean training loss: 1.0514 | Mean validation loss: 1.0098 (lowest: 1.0098) | Mean input variance: 0.1771 | Mean embedding variance: 0.0061 | Mean output variance: 0.0806 | Duration: 47.22 seconds
-Epoch: 0017 | Mean training loss: 1.0408 | Mean validation loss: 1.0079 (lowest: 1.0079) | Mean input variance: 0.1769 | Mean embedding variance: 0.0063 | Mean output variance: 0.0788 | Duration: 47.31 seconds
-Epoch: 0018 | Mean training loss: 1.0406 | Mean validation loss: 1.0040 (lowest: 1.0040) | Mean input variance: 0.1770 | Mean embedding variance: 0.0065 | Mean output variance: 0.0772 | Duration: 47.11 seconds
-Epoch: 0019 | Mean training loss: 1.0329 | Mean validation loss: 1.0013 (lowest: 1.0013) | Mean input variance: 0.1770 | Mean embedding variance: 0.0067 | Mean output variance: 0.0754 | Duration: 45.19 seconds
-Epoch: 0020 | Mean training loss: 1.0287 | Mean validation loss: 1.0144 (lowest: 1.0013) | Mean input variance: 0.1769 | Mean embedding variance: 0.0070 | Mean output variance: 0.0739 | Duration: 46.27 seconds
-Epoch: 0021 | Mean training loss: 1.0364 | Mean validation loss: 1.0017 (lowest: 1.0013) | Mean input variance: 0.1770 | Mean embedding variance: 0.0074 | Mean output variance: 0.0727 | Duration: 46.59 seconds
-Epoch: 0022 | Mean training loss: 1.0273 | Mean validation loss: 0.9977 (lowest: 0.9977) | Mean input variance: 0.1769 | Mean embedding variance: 0.0078 | Mean output variance: 0.0720 | Duration: 46.26 seconds

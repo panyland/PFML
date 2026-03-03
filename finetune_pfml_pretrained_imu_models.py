@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # Read data
     with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:
         f.write('Generating data...\n')
-    
+     
     Data = [] 
     for sequence_index in range(conf.num_randomly_generated_babydata):
         babyData = {}
@@ -137,7 +137,9 @@ if __name__ == "__main__":
         babyData['Mask'] = mask
 
         Data.append(babyData)
+      
 
+    """
     # Load real data
     Data = [] 
     mat_folder = Path("/home/paavo/Desktop/all_annotations_mat/")
@@ -151,7 +153,7 @@ if __name__ == "__main__":
         data['X'] = X_framed
         data['Mask'] = np.zeros(len(X_framed))
         Data.append(data)
-    
+    """
 
     with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:
         f.write('Done!\n\n')
