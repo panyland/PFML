@@ -96,6 +96,7 @@ if __name__ == '__main__':
     
     # Use CUDA if it is available, else use CPU
     device = 'cuda' if cuda.is_available() else 'cpu'
+    #device= 'cpu'
     with open(conf.name_of_log_textfile, 'a') as f:
         f.write(f'Process on {device}\n\n')
     
@@ -144,7 +145,7 @@ if __name__ == '__main__':
     # Load real data 
     
     Data = [] 
-    mat_folder = Path("/home/rqb592/dippa/all_data_mat/")
+    mat_folder = Path("/home/paavo/Desktop/all_data_mat/")
     mat_files = list(mat_folder.glob("*.mat"))
     for f in mat_files: 
         data = loadmat(f)

@@ -229,8 +229,16 @@ class random_imu_data_dataset(Dataset):
     def __len__(self) -> int:
         return len(self.X)
 
+
     def __getitem__(self, index):
-        
+        """         
+        # Global flag to avoid printing thousands of times
+        if not hasattr(self, "_debug_printed"):
+            print("DEBUG: __getitem__ called for index:", index)
+            self._debug_printed = True 
+        """
+
+
         if self.augment:
             X = data_augmentation(self.X[index], self.aug_p_noise, self.aug_p_dropout, self.aug_p_rotation,
                                   self.aug_p_chandropout, self.aug_p_time_warping, self.window_len, self.hop_len)
@@ -240,8 +248,26 @@ class random_imu_data_dataset(Dataset):
         if self.include_artificial_labels:
             target_labels = self.Y[index]
         else:
-            target_labels = 0
+            target_labels = np.zeros((self.X.shape[1], 1), dtype=np.float32) # Previously just 0
         
+        """ 
+        # ?
+        X, target_labels, mask, feats = (
+            X,
+            target_labels,
+            self.data_masks[index],
+            self.feats_functionals[index],
+        )
+        # Print shapes and dtypes once
+        if not hasattr(self, "_debug_shapes_printed"):
+            print("DEBUG SHAPES:")
+            print("  X:", type(X), getattr(X, "shape", None))
+            print("  target_labels:", type(target_labels), getattr(target_labels, "shape", None))
+            print("  mask:", type(mask), getattr(mask, "shape", None))
+            print("  feats:", type(feats), getattr(feats, "shape", None), "dtype:", getattr(feats, "dtype", None))
+            self._debug_shapes_printed = True 
+        """
+
         return X, target_labels, self.data_masks[index], self.feats_functionals[index]
 
 
