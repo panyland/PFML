@@ -283,7 +283,8 @@ def estimated_autocorrelation(frames):
         variance = x.var()
         x = x - x.mean()
         r = np.correlate(x, x, mode = 'full')[-n:]
-        result = r/(variance*(np.arange(n, 0, -1)))
+        eps = 1e-8 # Add to avoid division by zero
+        result = r/((variance + eps) * (np.arange(n, 0, -1)))
         ac.append(result)
         
     return np.array(ac)
