@@ -98,6 +98,7 @@ if __name__ == "__main__":
     
     # Use CUDA if it is available, else use CPU
     device = 'cuda' if cuda.is_available() else 'cpu'
+    #device = 'cpu' # For debugging --- IGNORE ---
     with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:
         f.write(f'Process on {device}\n\n')
     
@@ -151,19 +152,29 @@ if __name__ == "__main__":
         gyro = data["gyro_data"]  
         X = np.concatenate((acc, gyro), axis=1)
         X_framed = frame_sig(X, conf.window_len, conf.hop_len)
-        
-        # Frame the labels to align with X_framed
-        # Take the label at the center (or end) of each window
         B1 = data["B1"]
         Nframes = X_framed.shape[0]
+        
         B1_framed = np.zeros((Nframes, B1.shape[1]), dtype=B1.dtype)
         for i in range(Nframes):
             center = i * conf.hop_len + conf.window_len // 2
             B1_framed[i] = B1[center]
         
+        # Pad short recordings to minimum sequence length
+        train_seq_len = conf.params_train_dataset.get('train_sequence_length', 260)
+        if X_framed.shape[0] < train_seq_len:
+            pad = train_seq_len - X_framed.shape[0]
+            X_framed = np.pad(X_framed, ((0, pad), (0, 0), (0, 0)))
+            B1_framed = np.pad(B1_framed, ((0, pad), (0, 0)))
+            mask = np.ones(train_seq_len)
+            mask[:Nframes] = 0
+            Nframes = train_seq_len
+        else:
+            mask = np.zeros(Nframes)
+        
         data['X'] = X_framed
         data['B1'] = B1_framed
-        data['Mask'] = np.zeros(Nframes)
+        data['Mask'] = mask
         Data.append(data)
     
 

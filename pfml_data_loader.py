@@ -91,7 +91,10 @@ class random_imu_data_dataset(Dataset):
                 leftover_mask = np.ones_like(data_mask[i*train_sequence_length:(i+1)*train_sequence_length])
                 leftover_mask[:leftover_sequence_len] = data_mask[-leftover_sequence_len:]
                 data_masks.append(leftover_mask)
+        print(f"Total sequences in X: {len(X)}")
         
+        
+
         self.X = np.array(X)
         self.data_masks = np.array(data_masks)
         

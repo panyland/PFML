@@ -1,0 +1,104 @@
+The configuration settings in the file conf_finetune_pfml_pretrained_imu_models.py:
+
+finetuning_experiment_number = 1
+pretrained_model_conf_file = 'conf_pfml_pretrain_imu'
+timeseries_model = 'pfml_transformer_finetuning'
+print_conf_contents = True
+result_dir = f'pfml_finetuning_results_imu_{finetuning_experiment_number}'
+name_of_log_textfile = f'pfml_finetuning_imu_trainlog_{finetuning_experiment_number}.txt'
+train_model = True
+test_model = True
+finetune_transformer_block_by_block = False
+max_epochs = 800
+learning_rate = 4e-5
+train_sequence_length = 260
+batch_size = 1
+patience = 100
+dropout_encoder_model = 0.3
+dropout_timeseries_model = 0.4
+window_len = 120
+hop_len = 60
+train_criterion = 'f1' # Options: 'f1' / 'recall'
+num_folds = 10
+randomize_order_kfolds = True
+use_class_weights = True
+loss_name = 'CrossEntropyLoss'
+loss_params = {}
+optimization_algorithm = 'Adam'
+optimization_algorithm_params = {'lr': learning_rate}
+use_lr_scheduler = False
+lr_scheduler_stage_1 = 'ReduceLROnPlateau'
+lr_scheduler_params_stage_1 = {'mode': 'max',
+                               'factor': 0.5,
+                               'patience': 30}
+lr_scheduler_stage_2_part_1_epochs = 20
+lr_scheduler_stage_2_part_1 = 'LinearLR'
+lr_scheduler_params_stage_2_part_1 = {'start_factor': 0.001,
+                                      'total_iters': lr_scheduler_stage_2_part_1_epochs}
+lr_scheduler_stage_2_part_2 = 'ReduceLROnPlateau'
+lr_scheduler_params_stage_2_part_2 = {'mode': 'max',
+                                      'factor': 0.5,
+                                      'patience': 30}
+use_augmentation = True
+aug_p_noise = 0.0
+aug_p_dropout = 0.0
+aug_p_rotation = 0.0
+aug_p_chandropout = 0.3
+aug_p_time_warping = 0.0
+additional_hyperparameters_timeseries_model = {}
+num_randomly_generated_babydata = 20
+dataset_name = 'random_imu_data_dataset'
+train_val_ratio = 0.8
+shuffle_training_data = True
+mix_train_val_babies = False
+params_train_dataset = {'train_sequence_length': train_sequence_length,
+                        'train_val_ratio': train_val_ratio,
+                        'window_len': window_len,
+                        'hop_len': hop_len,
+                        'mix_train_val_babies': mix_train_val_babies,
+                        'augment_train_data': use_augmentation,
+                        'aug_p_noise': aug_p_noise,
+                        'aug_p_dropout': aug_p_dropout,
+                        'aug_p_rotation': aug_p_rotation,
+                        'aug_p_chandropout': aug_p_chandropout,
+                        'aug_p_time_warping': aug_p_time_warping,
+                        'include_artificial_labels': True}
+params_validation_dataset = {'train_sequence_length': train_sequence_length,
+                             'train_val_ratio': train_val_ratio,
+                             'window_len': window_len,
+                             'hop_len': hop_len,
+                             'mix_train_val_babies': mix_train_val_babies,
+                             'include_artificial_labels': True}
+params_test_dataset = {'train_sequence_length': train_sequence_length,
+                       'window_len': window_len,
+                       'hop_len': hop_len,
+                       'include_artificial_labels': True}
+params_train = {'batch_size': batch_size,
+                'shuffle': shuffle_training_data,
+                'drop_last': False}
+params_test = {'batch_size': batch_size,
+               'shuffle': False,
+               'drop_last': False}
+
+########################################################################################
+
+
+
+Process on cpu
+
+Generating data...
+Done!
+
+
+
+
+
+%%%%%%%%%%%%%%%%%% Fine-tuning the PFML pre-trained model that used the configuration file conf_pfml_pretrain_imu %%%%%%%%%%%%%%%%%%
+
+
+
+################## Training using 6 Transformer encoder layers ##################
+
+Training model for fold 1
+
+Initializing training set...
