@@ -151,8 +151,19 @@ if __name__ == "__main__":
         gyro = data["gyro_data"]  
         X = np.concatenate((acc, gyro), axis=1)
         X_framed = frame_sig(X, conf.window_len, conf.hop_len)
+        
+        # Frame the labels to align with X_framed
+        # Take the label at the center (or end) of each window
+        B1 = data["B1"]
+        Nframes = X_framed.shape[0]
+        B1_framed = np.zeros((Nframes, B1.shape[1]), dtype=B1.dtype)
+        for i in range(Nframes):
+            center = i * conf.hop_len + conf.window_len // 2
+            B1_framed[i] = B1[center]
+        
         data['X'] = X_framed
-        data['Mask'] = np.zeros(len(X_framed))
+        data['B1'] = B1_framed
+        data['Mask'] = np.zeros(Nframes)
         Data.append(data)
     
 
@@ -160,7 +171,7 @@ if __name__ == "__main__":
         f.write('Done!\n\n')
     
     # We generate a random vector of class prior probabilities for the simulated data
-    prior_prob = np.array([0.101, 0.052, 0.236, 0.027, 0.096, 0.314, 0.054, 0.022, 0.098])
+    prior_prob = np.array([0.10, 0.20, 0.30, 0.25, 0.15])
     
     # Compute prior probabilities for labels for (potential) loss weighting
     class_weights = from_numpy(1 / prior_prob).to(device).float()
@@ -242,7 +253,7 @@ if __name__ == "__main__":
                 else:
                     D_train.append(Data[i])
     
-            conf_pt.transformer_params['output_channels'] = 9 # Number of output categories
+            conf_pt.transformer_params['output_channels'] = 5 # Number of output categories
             
             # Initialize the data loaders
             if conf.train_model:
@@ -253,7 +264,7 @@ if __name__ == "__main__":
                 with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:
                     f.write('Done!\n')
                     f.write('Initializing validation set...\n')
-                validation_set = dataset(D_train, train_val_test='validation', **conf.params_validation_dataset)
+                validation_set = dataset(D_train, train_val_test='validation', **conf.params_validation_dataset) 
                 validation_data_loader = DataLoader(validation_set, **conf.params_train)
                 with open(f'{conf.result_dir}/{conf.name_of_log_textfile}', 'a') as f:
                     f.write('Done!\n')
