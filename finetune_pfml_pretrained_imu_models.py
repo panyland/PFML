@@ -402,7 +402,7 @@ if __name__ == "__main__":
                         for train_data in train_data_loader:
                             
                             # Get the minibatches
-                            X, Y, data_mask, _, _ = [element.to(device) for element in train_data]
+                            X, Y, data_mask, _ = [element.to(device) for element in train_data] # yksi _ liikaa
                             
                             # Zero the gradient of the optimizer
                             optimizer.zero_grad()
