@@ -145,7 +145,7 @@ if __name__ == '__main__':
     # Load real data 
     
     Data = [] 
-    mat_folder = Path("/home/paavo/Desktop/all_data_mat/")
+    mat_folder = Path("/home/rqb592/dippa/all_data_mat/")
     mat_files = list(mat_folder.glob("*.mat"))
     for f in mat_files: 
         data = loadmat(f)
@@ -161,6 +161,7 @@ if __name__ == '__main__':
 
     with open(conf.name_of_log_textfile, 'a') as f:
         f.write('Done!\n\n')
+    
     
     # Initialize our models, pass the models to the available device
     Encoder = pfml_encoder(**conf.encoder_model_params).to(device)

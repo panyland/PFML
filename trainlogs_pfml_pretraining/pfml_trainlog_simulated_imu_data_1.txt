@@ -140,13 +140,8 @@ params_feature_extraction = {'batch_size': batch_size,
 
 
 
-Process on cpu
+Process on cuda
 
 Generating data...
 Done!
 
-Initializing training set...
-Done!
-Initializing validation set...
-Done!
-Starting training...
