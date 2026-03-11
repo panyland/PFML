@@ -160,7 +160,7 @@ shuffle_training_data = True
 
 # Select if we want to split our training and validation data so that baby-specific data is included
 # in both sets.
-mix_train_val_babies = False
+mix_train_val_babies = True
 
 # The hyperparameters for our data loaders
 params_train_dataset = {'train_sequence_length': train_sequence_length,
