@@ -462,7 +462,7 @@ if __name__ == "__main__":
                             # Loop through every batch of our validation data and perform a similar process
                             # as for the training data
                             for validation_data in validation_data_loader:
-                                X, Y, data_mask, _, _ = [element.to(device) for element in validation_data]
+                                X, Y, data_mask, _= [element.to(device) for element in validation_data]
                                 X_input = []
                                 data_masks = []
                                 Y_orig = []
@@ -602,7 +602,7 @@ if __name__ == "__main__":
                 Timeseries_model.eval()
                 with no_grad():
                     for test_data in test_data_loader:
-                        X, Y, data_mask, _, _ = [element.to(device) for element in test_data]
+                        X, Y, data_mask, _= [element.to(device) for element in test_data]
                         X_input = []
                         data_masks = []
                         Y_orig = []
