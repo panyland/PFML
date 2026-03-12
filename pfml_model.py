@@ -165,7 +165,7 @@ class SENSOR_MODULE_v3(Module):
             X_output = torch.squeeze(self.lrelu(self.normalization(self.conv_4(X_fused).permute(0, 2, 3, 1)).permute(0, 3, 1, 2)), dim=3)
         else:
             X_output = torch.squeeze(self.lrelu(self.normalization(self.conv_4(X_fused))), dim=3)
-        print("X_output shape before permute:", X_output.shape)
+        #print("X_output shape before permute:", X_output.shape)
         # 3 sensorilla saadaan: torch.Size([64, 160, 260, 2])
         X_output = X_output.permute(0, 2, 1) # X_output is of size [batch_size, Nframes, output_channels]   
         
