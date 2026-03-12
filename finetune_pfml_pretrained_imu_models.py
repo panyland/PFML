@@ -630,7 +630,7 @@ if __name__ == "__main__":
                         testing_loss.append(loss.item())
                     testing_loss = np.array(testing_loss).mean()
                     
-                    conf_mat = confusion_matrix(epoch_true_Y_testing, epoch_pred_Y_testing, labels=np.arange(9))
+                    conf_mat = confusion_matrix(epoch_true_Y_testing, epoch_pred_Y_testing, labels=np.arange(5))
                     
                     if conf.train_criterion == 'f1':
                         testing_accuracy = f1_score(epoch_true_Y_testing, epoch_pred_Y_testing, average='macro')
@@ -651,7 +651,7 @@ if __name__ == "__main__":
             f.write('\n########################################################################################\n\n\n\n')
         
         combined_conf_mat = sum(fold_conf_mats)
-        output_categories = 9
+        output_categories = 5
         
         prec = np.zeros(output_categories)
         rec = np.zeros(output_categories)

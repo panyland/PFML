@@ -79,7 +79,7 @@ hop_len = 60
 train_criterion = 'f1' # Options: 'f1' / 'recall'
 
 # The number of folds for k-folds cross-validation
-num_folds = 10
+num_folds = 13 # Tiedostojen määrä -> LOSO-cross-validation
 
 # A flag whether we want to randomize the order of the babies before applying k-folds cross-validation
 randomize_order_kfolds = True
